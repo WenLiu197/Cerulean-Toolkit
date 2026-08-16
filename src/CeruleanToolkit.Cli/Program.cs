@@ -10,7 +10,8 @@ try
 {
     await host.StartAsync();
 
-
+    var root = new RootCommand("Cerulean Toolkit —— 一个多功能工具包");
+    return await root.Parse(args).InvokeAsync();
 }
 finally
 {
