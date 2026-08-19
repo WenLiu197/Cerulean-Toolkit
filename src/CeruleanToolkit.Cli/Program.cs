@@ -1,10 +1,15 @@
-﻿using CeruleanToolkit.Core.Services;
+﻿using CeruleanToolkit.Core.Helpers;
+using CeruleanToolkit.Core.Interfaces;
+using CeruleanToolkit.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
 
 var builder = Host.CreateApplicationBuilder();
-// TODO: 后续配置 DI 与日志过滤
+var configService = new ConfigService();
+LoggingHelper.Configure(builder.Logging, configService.GetConfig());
+builder.Services.AddSingleton<IConfigService, ConfigService>();
 using IHost host = builder.Build();
 
 try

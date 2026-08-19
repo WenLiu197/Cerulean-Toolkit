@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace CeruleanToolkit.Core.Services;
 
-public class ConfigService : IConfigService
+public sealed class ConfigService : IConfigService
 {
     private const string _configFileName = "config.json";
 
@@ -69,7 +69,7 @@ public class ConfigService : IConfigService
         }
     }
 
-    private void Save()
+    public void Save()
     {
         string json = JsonSerializer.Serialize(_config, ConfigJsonContext.Default.Config);
         File.WriteAllText(_configFilePath, json);

@@ -7,5 +7,6 @@ namespace CeruleanToolkit.Core.Interfaces
     public interface IConfigService
     {
         Config GetConfig();
+        void Save();
     }
 }
