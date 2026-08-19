@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="CeruleanToolkit.Cli/CeruleanToolkit.Cli.csproj" Id="0092b4d3-c611-4ba2-a440-0610646fbc03" />
+  <Project Path="CeruleanToolkit.Core/CeruleanToolkit.Core.csproj" Id="26d85157-5703-42ae-a463-bc2d6ab8ae1c" />
 </Solution>

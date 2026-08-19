@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using CeruleanToolkit.Core.Services;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
 
