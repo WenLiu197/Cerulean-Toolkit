@@ -10,7 +10,7 @@ using System.Text;
 namespace CeruleanToolkit.Cli.Commands.Config;
 
 /// <summary>
-/// 对应 <c><b>list-config</b></c>
+/// 对应 <c><b>list-config</b></c>, 列出配置命令
 /// </summary>
 /// <remarks>
 /// <para>

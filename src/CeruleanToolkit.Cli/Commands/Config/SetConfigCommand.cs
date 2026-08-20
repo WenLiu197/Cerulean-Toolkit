@@ -11,7 +11,7 @@ using System.Text;
 namespace CeruleanToolkit.Cli.Commands.Config;
 
 /// <summary>
-/// 对应 <c><b>set-config</b></c>
+/// 对应 <c><b>set-config</b></c>, 更改配置命令
 /// </summary>
 /// <remarks>
 /// <para>

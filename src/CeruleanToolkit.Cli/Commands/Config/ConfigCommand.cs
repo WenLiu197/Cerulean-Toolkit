@@ -26,6 +26,7 @@ internal class ConfigCommand
         command.Aliases.Add("cfg");
         command.Subcommands.Add(ListConfigCommand.Create(serviceProvider));
         command.Subcommands.Add(SetConfigCommand.Create(serviceProvider));
+        command.Subcommands.Add(ResetConfigCommand.Create(serviceProvider));
 
         return command;
     }
