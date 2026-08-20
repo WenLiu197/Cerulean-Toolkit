@@ -15,12 +15,16 @@ configService.Init();
 var builder = Host.CreateApplicationBuilder();
 LoggingHelper.Configure(builder.Logging, configService);
 builder.Services.AddSingleton<IConfigService>(configService);
+builder.Services.AddTransient<IPhigrosService, PhigrosService>();
 using IHost host = builder.Build();
 
 try
 {
     Console.OutputEncoding = Encoding.UTF8;
     await host.StartAsync();
+
+    var service = host.Services.GetRequiredService<IPhigrosService>();
+    service.BindWithSessionToken();
 
     var root = new RootCommand("Cerulean Toolkit —— 一个多功能工具包");
     root.Subcommands.Add(ConfigCommand.Create(host.Services));
