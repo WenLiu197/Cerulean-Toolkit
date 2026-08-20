@@ -38,8 +38,6 @@ public sealed class GeneralConfig
     public string LogLevel { get; set; } = "warning";
 }
 
-// TODO: 后续继续开发 Phigros 相关命令，v0.1.0 先开发获取成绩的命令
-
 /// <summary>
 /// 表示 Phigros 相关配置节。
 /// </summary>

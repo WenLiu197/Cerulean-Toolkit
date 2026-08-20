@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "CeruleanToolkit.Cli": {
+      "commandName": "Project"
+    }
+  }
+}
