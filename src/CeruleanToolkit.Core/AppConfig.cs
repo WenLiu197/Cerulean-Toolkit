@@ -10,7 +10,7 @@ namespace CeruleanToolkit.Core;
 /// <i>懂得都懂~~~</i>
 /// </para>
 /// </summary>
-public sealed class Config
+public sealed class AppConfig
 {
     /// <summary>
     /// 获取或设置通用配置节。

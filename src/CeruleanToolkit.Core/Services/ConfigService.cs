@@ -15,7 +15,7 @@ public sealed class ConfigService : IConfigService
 
     private readonly string _configFilePath;
 
-    private Config _config = new();
+    private AppConfig _config = new();
 
     public ConfigService()
     {
@@ -28,7 +28,7 @@ public sealed class ConfigService : IConfigService
     /// 顾名思义，就是获取配置的实例
     /// </summary>
     /// <returns></returns>
-    public Config GetConfig() => _config;
+    public AppConfig GetConfig() => _config;
 
     /// <summary>
     /// 初始化配置，
@@ -51,7 +51,7 @@ public sealed class ConfigService : IConfigService
         try
         {
             string json = File.ReadAllText(_configFilePath);
-            Config? loaded = JsonSerializer.Deserialize(json, ConfigJsonContext.Default.Config);
+            AppConfig? loaded = JsonSerializer.Deserialize(json, ConfigJsonContext.Default.AppConfig);
             if (loaded is not null)
             {
                 _config = loaded;
@@ -60,7 +60,7 @@ public sealed class ConfigService : IConfigService
         catch (JsonException ex)
         {
             Console.Error.WriteLine($"配置文件损坏，将使用默认配置: {ex.Message}");
-            _config = new Config();
+            _config = new AppConfig();
             Save();
         }
         catch (IOException ex)
@@ -71,7 +71,7 @@ public sealed class ConfigService : IConfigService
 
     public void Save()
     {
-        string json = JsonSerializer.Serialize(_config, ConfigJsonContext.Default.Config);
+        string json = JsonSerializer.Serialize(_config, ConfigJsonContext.Default.AppConfig);
         File.WriteAllText(_configFilePath, json);
     }
 
@@ -113,5 +113,5 @@ public sealed class ConfigService : IConfigService
 [JsonSourceGenerationOptions(
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-[JsonSerializable(typeof(Config))]
+[JsonSerializable(typeof(AppConfig))]
 public sealed partial class ConfigJsonContext : JsonSerializerContext { }

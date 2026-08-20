@@ -17,20 +17,20 @@ namespace CeruleanToolkit.Core.Helpers;
 /// </para>
 /// <list type="bullet">
 /// <item><description>Debug 构建固定允许 <see cref="LogLevel.Debug"/> 及以上级别的日志，便于调试。</description></item>
-/// <item><description>Release 构建的最低级别由配置的 <see cref="Config.General.logLevel"/> 决定（默认 <c>warning</c>），用户可自行调整以排错。</description></item>
+/// <item><description>Release 构建的最低级别由配置的 <see cref="AppConfig.General.logLevel"/> 决定（默认 <c>warning</c>），用户可自行调整以排错。</description></item>
 /// </list>
 /// </remarks>
 public static class LoggingHelper
 {
     private static IConfigService _configService = new ConfigService();
-    private static Config _config = _configService.GetConfig();
+    private static AppConfig _config = _configService.GetConfig();
 
     /// <summary>
     /// 配置日志过滤
     /// </summary>
     /// <param name="logging">日志构建器实例</param>
     /// <param name="config">配置文件实例</param>
-    public static void Configure(ILoggingBuilder logging, Config config)
+    public static void Configure(ILoggingBuilder logging, AppConfig config)
     {
         ArgumentNullException.ThrowIfNull(logging);
         ArgumentNullException.ThrowIfNull(config);

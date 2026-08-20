@@ -9,9 +9,20 @@ using System.Text;
 
 namespace CeruleanToolkit.Cli.Commands.Config;
 
+/// <summary>
+/// 对应 <c><b>list-config</b></c>
+/// </summary>
+/// <remarks>
+/// <para>
+/// 别名:
+/// <para>
+/// <list type="bullet">list</list>
+/// <list type="bullet">ls</list>
+/// </para>
+/// </para>
+/// </remarks>
 internal class ListConfigCommand
 {
-    private Table _table = new Table();
     public static Command Create(IServiceProvider serviceProvider)
     {
         var configService = serviceProvider.GetRequiredService<IConfigService>();

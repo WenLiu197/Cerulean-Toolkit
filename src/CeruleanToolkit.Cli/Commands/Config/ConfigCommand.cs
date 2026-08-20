@@ -25,6 +25,7 @@ internal class ConfigCommand
         var command = new Command("config", "配置管理");
         command.Aliases.Add("cfg");
         command.Subcommands.Add(ListConfigCommand.Create(serviceProvider));
+        command.Subcommands.Add(SetConfigCommand.Create(serviceProvider));
 
         return command;
     }
