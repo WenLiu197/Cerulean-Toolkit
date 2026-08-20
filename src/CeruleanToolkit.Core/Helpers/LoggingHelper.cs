@@ -1,5 +1,6 @@
 ﻿using CeruleanToolkit.Core.Interfaces;
 using CeruleanToolkit.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using System;
@@ -22,22 +23,18 @@ namespace CeruleanToolkit.Core.Helpers;
 /// </remarks>
 public static class LoggingHelper
 {
-    private static IConfigService _configService = new ConfigService();
-    private static AppConfig _config = _configService.GetConfig();
-
     /// <summary>
     /// 配置日志过滤
     /// </summary>
     /// <param name="logging">日志构建器实例</param>
-    /// <param name="config">配置文件实例</param>
-    public static void Configure(ILoggingBuilder logging, AppConfig config)
+    public static void Configure(ILoggingBuilder logging, IConfigService service)
     {
         ArgumentNullException.ThrowIfNull(logging);
-        ArgumentNullException.ThrowIfNull(config);
+        var config = service.GetConfig();
 #if DEBUG
         logging.SetMinimumLevel(LogLevel.Debug);
 #else
-        logging.SetMinimumLevel(ParseLogLevel(config.General.LogLevel));
+        logging.SetMinimumLevel(ParseLogLevel(service, config, config.General.LogLevel));
 #endif
     }
 
@@ -48,7 +45,7 @@ public static class LoggingHelper
     /// <returns>
     /// 解析后的日志级别；无法识别或为空时回退为 <see cref="LogLevel.Warning"/>。
     /// </returns>
-    private static LogLevel ParseLogLevel(string? level)
+    private static LogLevel ParseLogLevel(IConfigService service, AppConfig config, string? level)
     {
         return level?.Trim().ToLowerInvariant() switch
         {
@@ -59,11 +56,11 @@ public static class LoggingHelper
             "error" => LogLevel.Error,
             "critical" or "fatal" => LogLevel.Critical,
             "none" => LogLevel.None,
-            _ => SetDefaultLevel(level)
+            _ => SetDefaultLevel(service, config, level)
         };
     }
 
-    private static LogLevel SetDefaultLevel(string? level)
+    private static LogLevel SetDefaultLevel(IConfigService service, AppConfig config, string? level)
     {
         AnsiConsole.MarkupLine($"[yellow]未知的日志等级: {level}, 已设置为默认配置: Level.Warning[/]");
         AnsiConsole.MarkupLine($"[yellow]支持的配置值:[/]\n");
@@ -74,8 +71,8 @@ public static class LoggingHelper
         AnsiConsole.MarkupLine($"[yellow]error:             LogLevel.Error[/]");
         AnsiConsole.MarkupLine($"[yellow]critical, fatal:   LogLevel.Critical[/]");
         AnsiConsole.MarkupLine($"[yellow]none:              LogLevel.None[/]");
-        _config.General.LogLevel = "warning";
-        _configService.Save();
+        config.General.LogLevel = "warning";
+        service.Save();
         return LogLevel.Warning;
     }
 }

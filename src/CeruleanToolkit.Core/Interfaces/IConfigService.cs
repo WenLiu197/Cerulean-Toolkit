@@ -8,5 +8,7 @@ namespace CeruleanToolkit.Core.Interfaces
     {
         AppConfig GetConfig();
         void Save();
+
+        void Init();
     }
 }

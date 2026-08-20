@@ -27,7 +27,7 @@ internal class ListConfigCommand
     {
         var configService = serviceProvider.GetRequiredService<IConfigService>();
 
-        Option<bool> fullOption = new("--all", ["-a"])
+        Option<bool> allOption = new("--all", ["-a"])
         {
             Description = "输出完整配置（默认，可不指定）"
         };
@@ -38,24 +38,39 @@ internal class ListConfigCommand
         };
 
         var command = new Command("list-config", "列出当前配置")
-    {
-        fullOption,
-        groupOption
-    };
+        {
+            allOption,
+            groupOption
+        };
         command.Aliases.Add("list");
         command.Aliases.Add("ls");
 
         command.SetAction((parseResult) =>
         {
+            // 统计用户使用了几个选项
+            int specifiedCount = 0;
+
+            if (parseResult.GetValue(allOption))
+                specifiedCount++;
+
             string? group = parseResult.GetValue(groupOption);
+            if (!string.IsNullOrEmpty(group))
+                specifiedCount++;
+
+            // 互斥校验：最多只能指定一个
+            if (specifiedCount > 1)
+            {
+                AnsiConsole.MarkupLine("[red]--all、--group 只能指定其一哦~~~[/]");
+                return 1;
+            }
 
             if (string.IsNullOrEmpty(group))
             {
-                PrintingHelper.PrintAllConfig(configService.GetConfig());
+                return PrintingHelper.PrintAllConfig(configService.GetConfig());
             }
             else
             {
-                PrintingHelper.PrintConfigWithGroup(configService.GetConfig(), group);
+                return PrintingHelper.PrintConfigWithGroup(configService.GetConfig(), group);
             }
         });
 

@@ -36,12 +36,12 @@ internal static class ResetConfigCommand
 
         Option<bool> allOption = new("--all", ["-a"])
         {
-            Description = "重置全部配置（默认行为，可不指定）"
+            Description = "重置全部配置（默认行为，可不指定）",
         };
 
         Option<string> groupOption = new("--group", ["-g"])
         {
-            Description = "重置指定配置组，可选值：general、phigros"
+            Description = "重置指定配置组，每次只能跟一个，可选值：general、phigros",
         };
 
         Option<string> itemOption = new("--item", ["-i"])
@@ -55,34 +55,66 @@ internal static class ResetConfigCommand
             groupOption,
             itemOption,
         };
+        //command.Options.Add(allOption);
+        //command.Options.Add(groupOption);
+        //command.Options.Add(groupOption);
         command.Aliases.Add("reset");
         command.SetAction(parseResult =>
         {
-            bool allSpecified = parseResult.GetValue(allOption);
-            string? group = parseResult.GetValue(groupOption);
-            string? item = parseResult.GetValue(itemOption);
-            bool groupSpecified = !string.IsNullOrEmpty(group);
-            bool itemSpecified = !string.IsNullOrEmpty(item);
+            // 统计用户使用了几个选项
+            int specifiedCount = 0;
 
-            if ((allSpecified && (groupSpecified || itemSpecified))
-                || (groupSpecified && itemSpecified))
+            if (parseResult.GetValue(allOption))
+                specifiedCount++;
+
+            string? group = parseResult.GetValue(groupOption);
+            if (!string.IsNullOrEmpty(group))
+                specifiedCount++;
+
+            string? item = parseResult.GetValue(itemOption);
+            if (!string.IsNullOrEmpty(item))
+                specifiedCount++;
+
+            if (specifiedCount > 1)
             {
-                AnsiConsole.MarkupLine("[red]--all、--group、--item 只能指定其一[/]");
+                AnsiConsole.MarkupLine("[red]--all、--group、--item 只能指定其一哦~~~[/]");
                 return 1;
             }
 
-            if (groupSpecified)
-            {
+            // 根据指定的选项执行对应逻辑
+            if (!string.IsNullOrEmpty(group))
                 return ResetGroup(configService, group!);
-            }
 
-            if (itemSpecified)
-            {
+            if (!string.IsNullOrEmpty(item))
                 return ResetItem(configService, item!);
-            }
 
-            ResetAll(configService);
-            return 0;
+            // 默认是全部输出
+            return ResetAll(configService);
+
+            // 重构前的代码，留着，做第可读性、难维护的反面教材
+            //bool allSpecified = parseResult.GetValue(allOption);
+            //bool groupSpecified = !string.IsNullOrEmpty(group);
+            //bool itemSpecified = !string.IsNullOrEmpty(item);
+
+            //if ((allSpecified && (groupSpecified || itemSpecified))
+            //    || (groupSpecified && itemSpecified))
+            //{
+            //    AnsiConsole.MarkupLine("[red]--all、--group、--item 只能指定其一[/]");
+            //    return 1;
+            //}
+
+            //if (groupSpecified)
+            //{
+            //    return ResetGroup(configService, group!);
+            //}
+
+            //if (itemSpecified)
+            //{
+            //    return ResetItem(configService, item!);
+            //}
+
+            //ResetAll(configService);
+            //return 0;
         });
 
         return command;

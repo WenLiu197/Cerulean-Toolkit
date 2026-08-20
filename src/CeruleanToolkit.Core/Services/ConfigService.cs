@@ -21,7 +21,7 @@ public sealed class ConfigService : IConfigService
     {
         _configDirectory = GetConfigDirectory();
         _configFilePath = Path.Combine(_configDirectory, _configFileName);
-        Init();
+        //Init();
     }
 
     /// <summary>
@@ -33,9 +33,9 @@ public sealed class ConfigService : IConfigService
     /// <summary>
     /// 初始化配置，
     /// </summary>
-    private void Init()
+    public void Init()
     {
-        if (System.IO.File.Exists(_configFilePath))
+        if (File.Exists(_configFilePath))
         {
             Load();
         }

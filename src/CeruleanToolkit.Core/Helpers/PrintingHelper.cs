@@ -15,7 +15,7 @@ public static class PrintingHelper
     /// 输出所有配置项的表格
     /// </summary>
     /// <param name="config">配置对象</param>
-    public static void PrintAllConfig(AppConfig config)
+    public static int PrintAllConfig(AppConfig config)
     {
         var table = BuildTable();
         foreach (var (group, key, value) in EnumerateEntries(config))
@@ -23,6 +23,7 @@ public static class PrintingHelper
             table.AddRow(group, key, value);
         }
         AnsiConsole.Write(table);
+        return 0;
     }
 
     /// <summary>
@@ -30,7 +31,7 @@ public static class PrintingHelper
     /// </summary>
     /// <param name="config">配置对象</param>
     /// <param name="group">组名，不区分大小写</param>
-    public static void PrintConfigWithGroup(AppConfig config, string group)
+    public static int PrintConfigWithGroup(AppConfig config, string group)
     {
         var table = BuildTable();
 
@@ -41,15 +42,17 @@ public static class PrintingHelper
                 table.AddRow(group, key, value);
             }
         }
+
         if (table.Rows.Count == 0)
         {
             AnsiConsole.MarkupLine($"[red]未找到组 '{group}', 可输入 'ctk cfg ls -a' 查看目前支持的配置[/]");
             // 本来想列个表，但一想，算了，反正有全列的命令
-            return;
+            return 1;
         }
         else
         {
             AnsiConsole.Write(table);
+            return 0;
         }
     }
 

@@ -24,7 +24,7 @@ internal static class SetConfigCommand
     {
         var configService = servicesProvider.GetRequiredService<IConfigService>();
 
-        Argument<string> projectArgument = new("project")
+        Argument<string> projectArgument = new("key")
         {
             Description = "配置项路径，如 phigros.isInternational"
         };

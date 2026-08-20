@@ -1,7 +1,12 @@
 {
   "profiles": {
     "CeruleanToolkit.Cli": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "cfg ls -g  general -a"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
     }
   }
 }

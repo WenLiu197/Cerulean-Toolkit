@@ -9,10 +9,11 @@ using System.CommandLine;
 using System.Text;
 
 var configService = new ConfigService();
+configService.Init();
 
 var builder = Host.CreateApplicationBuilder();
-LoggingHelper.Configure(builder.Logging, configService.GetConfig());
-builder.Services.AddSingleton<IConfigService, ConfigService>();
+LoggingHelper.Configure(builder.Logging, configService);
+builder.Services.AddSingleton<IConfigService>(configService);
 using IHost host = builder.Build();
 
 try
