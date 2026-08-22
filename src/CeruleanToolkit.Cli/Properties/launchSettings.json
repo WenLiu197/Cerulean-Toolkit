@@ -1,7 +1,8 @@
 {
   "profiles": {
     "CeruleanToolkit.Cli": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "pgr bind -s"
     },
     "WSL": {
       "commandName": "WSL2",

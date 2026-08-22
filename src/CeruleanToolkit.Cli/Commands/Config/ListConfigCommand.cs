@@ -1,4 +1,4 @@
-﻿using CeruleanToolkit.Core.Helpers;
+﻿using CeruleanToolkit.Core.Helpers.Pringting;
 using CeruleanToolkit.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
@@ -66,11 +66,11 @@ internal class ListConfigCommand
 
             if (string.IsNullOrEmpty(group))
             {
-                return PrintingHelper.PrintAllConfig(configService.GetConfig());
+                return ConfigPrintingHelper.PrintAllConfig(configService.GetConfig());
             }
             else
             {
-                return PrintingHelper.PrintConfigWithGroup(configService.GetConfig(), group);
+                return ConfigPrintingHelper.PrintConfigWithGroup(configService.GetConfig(), group);
             }
         });
 

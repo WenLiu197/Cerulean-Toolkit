@@ -1,15 +1,16 @@
-﻿using Spectre.Console;
+﻿using PhiLibrary197.CloudSave;
+using PhiLibrary197.CloudSave.HttpModels;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CeruleanToolkit.Core.Helpers;
+namespace CeruleanToolkit.Core.Helpers.Pringting;
 
-//TODO: 后续如果越来越多记得按类别拆分
 /// <summary>
-/// 格式化输出辅助类，集中管理各种表格、面板等输出逻辑。
+/// 格式化输出辅助类，集中管理配置相关的各种表格、面板等输出逻辑。
 /// </summary>
-public static class PrintingHelper
+public static class ConfigPrintingHelper
 {
     /// <summary>
     /// 输出所有配置项的表格
@@ -79,7 +80,7 @@ public static class PrintingHelper
         yield return ("General", nameof(config.General.LogLevel), config.General.LogLevel, string.Empty);
 
         // Phigros 组
-        yield return ("Phigros", nameof(config.Phigros.SessionToken), config.Phigros.SessionToken, "请使用 'phigros bind' 命令设置");
+        yield return ("Phigros", nameof(config.Phigros.SessionToken), config.Phigros.SessionToken, "请使用 'phigros bind' 命令设置\n不要泄露给他人");
         yield return ("Phigros", nameof(config.Phigros.IsInternational), config.Phigros.IsInternational.ToString(), string.Empty);
 
         // 未来新增组时，在这里追加 yield return 即可

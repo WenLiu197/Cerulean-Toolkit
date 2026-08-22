@@ -1,4 +1,5 @@
 ﻿using CeruleanToolkit.Cli.Commands.Config;
+using CeruleanToolkit.Core.Interfaces;
 using System.CommandLine;
 
 namespace CeruleanToolkit.Cli.Commands.Phigros;
@@ -14,12 +15,14 @@ internal class PhigrosCommand
     /// </summary>
     /// <param name="serviceProvider">顾名思义</param>
     /// <returns>配置完成的命令实例</returns>
-    public static Command Create(IServiceProvider serviceProvider)
+    public static Command Create(IServiceProvider services)
     {
-
         var command = new Command("phigros", "Phigros 游戏相关命令");
         command.Aliases.Add("phi");
         command.Aliases.Add("pgr");
+
+        command.Subcommands.Add(BindCommand.Create(services));
+        command.Subcommands.Add(UnbindCommand.Create(services));
 
         return command;
     }

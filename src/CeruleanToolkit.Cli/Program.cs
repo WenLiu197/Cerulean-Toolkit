@@ -24,7 +24,8 @@ try
     await host.StartAsync();
 
     var service = host.Services.GetRequiredService<IPhigrosService>();
-    service.BindWithSessionToken();
+    //service.Unbind(configService.GetConfig());
+    //await service.BindWithSessionTokenAsync();
 
     var root = new RootCommand("Cerulean Toolkit —— 一个多功能工具包");
     root.Subcommands.Add(ConfigCommand.Create(host.Services));
