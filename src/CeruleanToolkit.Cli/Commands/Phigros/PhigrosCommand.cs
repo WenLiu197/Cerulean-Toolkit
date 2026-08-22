@@ -9,11 +9,10 @@ namespace CeruleanToolkit.Cli.Commands.Phigros;
 /// </summary>
 internal class PhigrosCommand
 {
-    // TODO: 这里慢慢加，v0.1.0先写一部分
     /// <summary>
     /// 创建 <c>phigros</c> 命令实例, 并添加子命令
     /// </summary>
-    /// <param name="serviceProvider">顾名思义</param>
+    /// <param name="services">顾名思义</param>
     /// <returns>配置完成的命令实例</returns>
     public static Command Create(IServiceProvider services)
     {
@@ -23,6 +22,7 @@ internal class PhigrosCommand
 
         command.Subcommands.Add(BindCommand.Create(services));
         command.Subcommands.Add(UnbindCommand.Create(services));
+        command.Subcommands.Add(GetUserInfoCommand.Create(services));
 
         return command;
     }

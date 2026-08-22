@@ -57,6 +57,9 @@ internal class BindCommand
             if (parseResult.GetValue(sessionTokenOption))
                 return await phigrosService.BindWithSessionTokenAsync();
 
+            if (parseResult.GetValue(taptapOption))
+                return await phigrosService.BindWithTaptapAsync();
+
             return await phigrosService.BindWithSessionTokenAsync();
         });
 

@@ -2,7 +2,9 @@
 using CeruleanToolkit.Core.Interfaces;
 using PhiLibrary197.CloudSave;
 using PhiLibrary197.CloudSave.HttpModels;
+using PhiLibrary197.CloudSave.Login;
 using Spectre.Console;
+using System.Net;
 
 namespace CeruleanToolkit.Core.Services;
 
@@ -38,9 +40,18 @@ public sealed class PhigrosService : IPhigrosService
     /// </summary>
     /// <param name="config">应用配置实例</param>
     /// <returns>云存档</returns>
-    private static Save GetSave(AppConfig config) => new Save(
-        config.Phigros.SessionToken,
-        config.Phigros.IsInternational);
+    private static Save GetSave(AppConfig config)
+    {
+        try
+        {
+            return new Save(config.Phigros.SessionToken, config.Phigros.IsInternational);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("还没有绑定账户 (配置项 'Phigros.SessionToken' 为空或无效)", ex);
+        }
+
+    }
 
     /// <summary>
     /// 顾名思义，就是返回上下文，搭配 <see cref="PhigrosService.GetSave(AppConfig config)"/> 食用更佳
@@ -84,9 +95,10 @@ public sealed class PhigrosService : IPhigrosService
     /// </summary>
     /// <param name="save">存档</param>
     /// <returns>存储了用户信息的元组</returns>
-    public async Task<(string NickName, string Rks, string Intro, string Data, string Challenge)> GetUserInfo(Save save)
+    public async Task<(string NickName, string Rks, string Intro, string Data, string Challenge)> GetUserInfoAsync()
     {
-
+        var config = _configService.GetConfig();
+        var save = GetSave(config);
         var info = await save.GetPlayerInfoAsync();
         var context = await GetSaveContextAsync(save);
         var record = context.ReadGameRecord();
@@ -145,7 +157,7 @@ public sealed class PhigrosService : IPhigrosService
 
                 AnsiConsole.MarkupLine("[green]sessionToken 绑定成功~~~\n[/]");
                 AnsiConsole.MarkupLine("[yellow]请检查您的个人信息:\n[/]");
-                PhigrosPrintingHelper.ShowUserInfo(await GetUserInfo(GetSave(config)));
+                PhigrosPrintingHelper.ShowUserInfo(await GetUserInfoAsync());
                 return 0;
             }
             catch (HttpRequestException ex)
@@ -165,7 +177,83 @@ public sealed class PhigrosService : IPhigrosService
         else
         {
             AnsiConsole.MarkupLine("[red]您以绑定以下账号，请使用 'phigros unbind' 解绑后再试\n[/]");
-            PhigrosPrintingHelper.ShowUserInfo(await GetUserInfo(GetSave(config)));
+            PhigrosPrintingHelper.ShowUserInfo(await GetUserInfoAsync());
+            return 1;
+        }
+    }
+
+    /// <summary>
+    /// 通过 TapTap 回调监听登录
+    /// </summary>
+    public async Task<int> BindWithTaptapAsync()
+    {
+        var config = _configService.GetConfig();
+
+        if (string.IsNullOrEmpty(config.Phigros.SessionToken))
+        {
+            // 生成回调登录数据
+            CallbackLoginData login = TapTapHelper.GenerateCallbackLoginUrl(
+                "http://localhost:8080/callback");
+
+            // 引导用户访问，在浏览器里完成授权
+            Console.MarkupLine($"请访问以登录: {login.BeginUrl}\n");
+            AnsiConsole.MarkupLine($"[yellow]当提示 “正在打开 Phigros” 时即可返回~[/]");
+
+            // 第一次写这种监听器………………希望不会出什么差错
+            using var listener = new HttpListener();
+            listener.Prefixes.Add("http://localhost:8080/");
+            listener.Start();
+
+            try
+            {
+                // 等待 TapTap 的回调
+                HttpListenerContext context = await listener.GetContextAsync();
+                HttpListenerRequest request = context.Request;
+
+                // 检查是否是 /callback 路径（以防万一……还是写上吧……防御性编程这一块）
+                if (request.Url?.AbsolutePath != "/callback")
+                {
+                    Console.Error.WriteLine($"接收到意外的路径：{request.Url?.AbsolutePath}");
+                    return 1;
+                }
+
+                // 从查询字符串中提取 code
+                string? code = request.QueryString["code"];
+
+                if (string.IsNullOrEmpty(code))
+                {
+                    Console.Error.WriteLine("回调中缺少 code 参数");
+                    return 1;
+                }
+
+                // 使用 code 交换 Token
+                TapTapTokenData token = await TapTapHelper.HandleCallbackLogin(login, code);
+                TapTapProfileData profile = await TapTapHelper.GetProfile(token.Data);
+
+                // 用 TapTap 数据登录 LeanCloud 并保存 sessionToken
+                string sessionToken = await LCHelper.LoginAndGetToken(
+                    new LCCombinedAuthData(profile.Data, token.Data));
+                config.Phigros.SessionToken = sessionToken;
+                _configService.Save();
+
+                AnsiConsole.MarkupLine("\n[green]登录成功![/]\n");
+                AnsiConsole.MarkupLine("[yellow]请检查您的个人信息:[/]\n");
+                PhigrosPrintingHelper.ShowUserInfo(await GetUserInfoAsync());
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"发生错误：{ex.Message}");
+            }
+            finally
+            {
+                listener.Stop();   // 停止监听，释放资源
+            }
+            return 0;
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[red]您以绑定以下账号，请使用 'phigros unbind' 解绑后再试\n[/]");
+            PhigrosPrintingHelper.ShowUserInfo(await GetUserInfoAsync());
             return 1;
         }
     }
@@ -175,9 +263,11 @@ public sealed class PhigrosService : IPhigrosService
         if (string.IsNullOrEmpty(config.Phigros.SessionToken))
         {
             AnsiConsole.MarkupLine("[red]您还没有绑定账号哦~[/]");
+            return 1;
         }
         config.Phigros.SessionToken = string.Empty;
         _configService.Save();
+        AnsiConsole.MarkupLine("[green]解绑成功~[/]");
         return 0;
     }
 }
