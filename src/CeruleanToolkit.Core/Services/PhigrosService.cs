@@ -160,7 +160,6 @@ public sealed class PhigrosService : IPhigrosService
     /// <summary>
     /// 获取基本用户信息
     /// </summary>
-    /// <param name="save">存档</param>
     /// <returns>存储了用户信息的元组</returns>
     public async Task<(string NickName, string Rks, string Intro, string Data, string Challenge, bool ShowIntro)> GetUserInfoAsync(bool showIntro = true)
     {
@@ -338,7 +337,9 @@ public sealed class PhigrosService : IPhigrosService
         return 0;
     }
 
-    // 获取 B30 成绩
+    /// <summary>
+    /// 获取 B30 成绩
+    /// </summary>
     public async Task<int> GetB30Async()
     {
         PhigrosPrintingHelper.ShowUserInfo(await GetUserInfoAsync());
