@@ -1,0 +1,19 @@
+input: .
+output: .retype
+
+url: https://wenliu197.github.io/Cerulean-Toolkit/ # Use your website address here
+
+start:
+  # Uncomment the next line to try Retype Pro features
+  # pro: true
+
+branding:
+  title: Cerulean Toolkit
+  label: Docs
+
+links:
+- text: GitHub Repo
+  link: https://github.com/WenLiu197/Cerulean-Toolkit
+
+footer:
+  copyright: "&copy; Copyright {{ year }} WenLiu197. All rights reserved."

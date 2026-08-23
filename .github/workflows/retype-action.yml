@@ -1,0 +1,28 @@
+name: Publish Retype powered website to GitHub Pages
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # retype.yml 位于 doc/ 目录（input: . 相对该目录）
+      - uses: retypeapp/action-build@latest
+        with:
+          config_path: doc
+
+      # 构建产物推送到 gh-pages 分支（GitHub Pages 设置里选择 Deploy from a branch: gh-pages / root）
+      - uses: retypeapp/action-github-pages@latest
+        with:
+          branch: gh-pages
+          update-branch: true
