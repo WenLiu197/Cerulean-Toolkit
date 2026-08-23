@@ -1,0 +1,29 @@
+name: CI
+
+on:
+    push:
+        branches: [ main, develop, 'release/*']
+    pull_request:
+        branches: [ main, develop ]
+
+jobs:
+    build-and-test:
+        runs-on: windows-latest
+
+        steps:
+            - name: 检出
+              uses: actions/checkout@v4
+
+            - name: 安装 SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                dotnet-version: '10.0.x'
+
+            - name: 恢复依赖
+              run: dotnet restore ./src/CeruleanToolkit.slnx
+
+            - name: 构建
+              run: dotnet build ./src/CeruleanToolkit.slnx --configuration Release --no-restore
+
+            - name: 检查代码格式
+              run: dotnet format ./src/CeruleanToolkit.slnx --verify-no-changes
