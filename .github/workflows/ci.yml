@@ -19,6 +19,9 @@ jobs:
               with:
                 dotnet-version: '10.0.x'
 
+            - name: 进入目录
+              run: cd \src\CeruleanToolit.Cli
+            
             - name: 恢复依赖
               run: dotnet restore
 
