@@ -1,10 +1,7 @@
 ﻿using CeruleanToolkit.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.Text;
 
 namespace CeruleanToolkit.Cli.Commands.Phigros;
 

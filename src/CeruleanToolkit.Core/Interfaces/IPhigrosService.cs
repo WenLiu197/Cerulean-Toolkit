@@ -5,8 +5,16 @@ namespace CeruleanToolkit.Core.Interfaces;
 public interface IPhigrosService
 {
     Task<int> BindWithSessionTokenAsync();
+
     Task<int> BindWithTaptapAsync();
+
     int Unbind(AppConfig config);
 
-    Task<(string NickName, string Rks, string Intro, string Data, string Challenge)> GetUserInfoAsync();
+    string ParseStatus(ScoreStatus status);
+
+    string ParseDifficulty(Difficulty difficulty);
+
+    Task<(string NickName, string Rks, string Intro, string Data, string Challenge, bool ShowIntro)> GetUserInfoAsync(bool showIntro = true);
+
+    Task<int> GetB30Async();
 }

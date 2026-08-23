@@ -23,9 +23,7 @@ try
     Console.OutputEncoding = Encoding.UTF8;
     await host.StartAsync();
 
-    var service = host.Services.GetRequiredService<IPhigrosService>();
-    //service.Unbind(configService.GetConfig());
-    //await service.BindWithSessionTokenAsync();
+    //var service = host.Services.GetRequiredService<IPhigrosService>();
 
     var root = new RootCommand("Cerulean Toolkit —— 一个多功能工具包");
     root.Subcommands.Add(ConfigCommand.Create(host.Services));

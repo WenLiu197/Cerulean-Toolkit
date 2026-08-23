@@ -1,6 +1,4 @@
-﻿using CeruleanToolkit.Cli.Commands.Config;
-using CeruleanToolkit.Core.Interfaces;
-using System.CommandLine;
+﻿using System.CommandLine;
 
 namespace CeruleanToolkit.Cli.Commands.Phigros;
 
@@ -23,6 +21,7 @@ internal class PhigrosCommand
         command.Subcommands.Add(BindCommand.Create(services));
         command.Subcommands.Add(UnbindCommand.Create(services));
         command.Subcommands.Add(GetUserInfoCommand.Create(services));
+        command.Subcommands.Add(GetB30Command.Create(services));
 
         return command;
     }

@@ -58,13 +58,13 @@ public sealed class PhigrosService : IPhigrosService
     /// </summary>
     /// <param name="save">自己看~~~</param>
     /// <returns>返回存档上下文</returns>
-    private static async Task<SaveContext> GetSaveContextAsync(Save save)
-    {
-        SaveInfo saveInfo = (await save.GetSaveInfoFromCloudAsync()).Results[_saveIndexLatest];
-        byte[] rawZip = await save.GetSaveZipAsync(saveInfo.Simplify());
-        SaveContext ctx = await SaveContext.FromZipAsync(rawZip, saveInfo, save.Decrypt);
-        return ctx;
-    }
+    //private static async Task<SaveContext> GetSaveContextAsync(Save save)
+    //{
+    //    SaveInfo saveInfo = (await save.GetSaveInfoFromCloudAsync()).Results[_saveIndexLatest];
+    //    byte[] rawZip = await save.GetSaveZipAsync(saveInfo.Simplify());
+    //    SaveContext ctx = await SaveContext.FromZipAsync(rawZip, saveInfo, save.Decrypt);
+    //    return ctx;
+    //}
 
     /// <summary>
     /// 解析课题模式成绩
@@ -90,17 +90,84 @@ public sealed class PhigrosService : IPhigrosService
         return "Null";
     }
 
+    public string ParseStatus(ScoreStatus status)
+    {
+        string parsedStatus = string.Empty;
+        switch (status)
+        {
+            case ScoreStatus.Fc:
+                parsedStatus = "[bold DeepSkyBlue1]V[/]";
+                break;
+            case ScoreStatus.Phi:
+                parsedStatus = "[bold yellow]φ[/]";
+                break;
+            case ScoreStatus.Vu:
+                parsedStatus = "[bold]V[/]";
+                break;
+            case ScoreStatus.S:
+                parsedStatus = "[bold]S[/]";
+                break;
+            case ScoreStatus.A:
+                parsedStatus = "[bold]A[/]";
+                break;
+            case ScoreStatus.B:
+                parsedStatus = "[bold]B[/]";
+                break;
+            case ScoreStatus.C:
+                parsedStatus = "[bold]C[/]";
+                break;
+            case ScoreStatus.False:
+                parsedStatus = "[bold]F[/]";
+                break;
+            default:
+                parsedStatus = "?";
+                break;
+        }
+
+        return parsedStatus;
+    }
+
+    public string ParseDifficulty(Difficulty difficulty)
+    {
+        string parsedDifficulty = string.Empty;
+        switch (difficulty)
+        {
+            case Difficulty.EZ:
+                parsedDifficulty = "[#00FA9A]EZ[/]";
+                break;
+            case Difficulty.HD:
+                parsedDifficulty = "[#00BFFF]HD[/]";
+                break;
+            case Difficulty.IN:
+                parsedDifficulty = "[red]IN[/]";
+                break;
+            case Difficulty.AT:
+                parsedDifficulty = "[white]AT[/]";
+                break;
+            case Difficulty.Legacy:
+                parsedDifficulty = "[#FF69B4]Legacy[/]";
+                break;
+            case Difficulty.SP:
+                parsedDifficulty = "[#FF69B4n]SP[/]";
+                break;
+            default:
+                parsedDifficulty = "[white]?[/]";
+                break;
+        }
+        return parsedDifficulty;
+    }
+
     /// <summary>
     /// 获取基本用户信息
     /// </summary>
     /// <param name="save">存档</param>
     /// <returns>存储了用户信息的元组</returns>
-    public async Task<(string NickName, string Rks, string Intro, string Data, string Challenge)> GetUserInfoAsync()
+    public async Task<(string NickName, string Rks, string Intro, string Data, string Challenge, bool ShowIntro)> GetUserInfoAsync(bool showIntro = true)
     {
         var config = _configService.GetConfig();
         var save = GetSave(config);
         var info = await save.GetPlayerInfoAsync();
-        var context = await GetSaveContextAsync(save);
+        var context = await save.GetSaveContextAsync(_saveIndexLatest);
         var record = context.ReadGameRecord();
         var progress = context.ReadGameProgress();
         var userInfo = context.ReadGameUserInfo();
@@ -109,7 +176,7 @@ public sealed class PhigrosService : IPhigrosService
         string rks = Math.Round(record.GetSortedListForRks(constantMap, nameMap).Rks, 4).ToString();
         string data = progress.Money.ToString();
         string challenge = ParseChallengeModeRank(progress.ChallengeModeRank);
-        return (info.NickName ?? "Guest", rks, userInfo.Intro, data, challenge);
+        return (info.NickName ?? "Guest", rks, userInfo.Intro, data, challenge, showIntro);
     }
 
     /// <summary>
@@ -148,7 +215,7 @@ public sealed class PhigrosService : IPhigrosService
 
                     // 发起 HTTP 请求
                     // 如果 token 无效，抛出 HttpRequestException
-                    await GetSaveContextAsync(testSave);
+                    await testSave.GetSaveContextAsync(_saveIndexLatest);
                 }
 
                 // 验证通过后保存到配置
@@ -268,6 +335,21 @@ public sealed class PhigrosService : IPhigrosService
         config.Phigros.SessionToken = string.Empty;
         _configService.Save();
         AnsiConsole.MarkupLine("[green]解绑成功~[/]");
+        return 0;
+    }
+
+    // 获取 B30 成绩
+    public async Task<int> GetB30Async()
+    {
+        PhigrosPrintingHelper.ShowUserInfo(await GetUserInfoAsync());
+        var constantMap = _songDatabase.ToConstantMap();
+        var nameMap = _songDatabase.ToNameMap();
+        var save = GetSave(_configService.GetConfig());
+        SaveContext ctx = await save.GetSaveContextAsync(_saveIndexLatest);
+        GameRecord record = ctx.ReadGameRecord();
+        Summary summary = ctx.ReadSummary();
+        var (phis, otherScores, _) = record.GetSortedListForRks(constantMap, nameMap);
+        PhigrosPrintingHelper.ShowB30((phis, otherScores), this);
         return 0;
     }
 }
