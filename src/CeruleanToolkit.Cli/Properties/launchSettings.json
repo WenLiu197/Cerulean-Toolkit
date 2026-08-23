@@ -2,7 +2,7 @@
   "profiles": {
     "CeruleanToolkit.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "cfg ls -g  general -a"
+      "commandLineArgs": "pgr get-b30"
     },
     "WSL": {
       "commandName": "WSL2",

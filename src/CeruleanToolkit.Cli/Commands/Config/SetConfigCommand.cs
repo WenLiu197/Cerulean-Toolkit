@@ -61,10 +61,6 @@ internal static class SetConfigCommand
                 config.General.LogLevel = value;
                 break;
 
-            case "phigros.sessiontoken":
-                config.Phigros.SessionToken = value;
-                break;
-
             case "phigros.isinternational":
                 if (!bool.TryParse(value, out bool isInternational))
                 {
@@ -77,7 +73,7 @@ internal static class SetConfigCommand
 
             default:
                 AnsiConsole.MarkupLine(
-                    $"[red]未知的配置项：'{Markup.Escape(project)}'（可选：general.logLevel、phigros.sessionToken、phigros.isInternational）[/]");
+                    $"[red]未知的配置项：'{Markup.Escape(project)}'（可选：general.logLevel、phigros.isInternational）[/]");
                 return 1;
         }
 

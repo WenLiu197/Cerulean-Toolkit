@@ -185,17 +185,13 @@ internal static class ResetConfigCommand
                 config.General.LogLevel = "warning";
                 break;
 
-            case "phigros.sessiontoken":
-                config.Phigros.SessionToken = string.Empty;
-                break;
-
             case "phigros.isinternational":
                 config.Phigros.IsInternational = false;
                 break;
 
             default:
                 AnsiConsole.MarkupLine(
-                    $"[red]未知的配置项：'{Markup.Escape(item)}'（可选：general.logLevel、phigros.sessionToken、phigros.isInternational）[/]");
+                    $"[red]未知的配置项：'{Markup.Escape(item)}'（可选：general.logLevel、phigros.isInternational）[/]");
                 return 1;
         }
 
