@@ -1,0 +1,13 @@
+﻿# Cerulean Toolkit 文档
+
+> 文档正逐步完善中
+
+- [Cerulean Toolkit 文档](https://wenliu197.github.io/Cerulean-Toolkit/home.md): Cerulean Toolkit 文档
+- [Cerulean Toolkit 隐私政策](https://wenliu197.github.io/Cerulean-Toolkit/cerulean-toolkit-%E9%9A%90%E7%A7%81%E6%94%BF%E7%AD%96.md): 上次更新时间：2026 年 8 月
+
+## Config 命令
+
+- [config 命令](https://wenliu197.github.io/Cerulean-Toolkit/config-%E5%91%BD%E4%BB%A4/config.md): config 命令是管理程序配置相关命令的父命令，它的子命令可以完成查看、设定、重置配置的工作
+- [list-config 命令](https://wenliu197.github.io/Cerulean-Toolkit/config-%E5%91%BD%E4%BB%A4/list-config.md)
+- [set-config 命令](https://wenliu197.github.io/Cerulean-Toolkit/config-%E5%91%BD%E4%BB%A4/set-config.md)
+- [reset-config 命令](https://wenliu197.github.io/Cerulean-Toolkit/config-%E5%91%BD%E4%BB%A4/reset-config.md)
