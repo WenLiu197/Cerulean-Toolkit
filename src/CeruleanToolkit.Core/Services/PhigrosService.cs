@@ -1,4 +1,5 @@
-﻿using CeruleanToolkit.Core.Helpers.Pringting;
+﻿using CeruleanToolkit.Core.Helpers;
+using CeruleanToolkit.Core.Helpers.Pringting;
 using CeruleanToolkit.Core.Interfaces;
 using PhiLibrary197.CloudSave;
 using PhiLibrary197.CloudSave.HttpModels;
@@ -21,8 +22,10 @@ namespace CeruleanToolkit.Core.Services;
 public sealed class PhigrosService : IPhigrosService
 {
     private readonly IConfigService _configService;
-    private static readonly string _difficultyPath = $@"{Environment.CurrentDirectory}\Info\difficulty.tsv";
-    private static readonly string _infoPath = $@"{Environment.CurrentDirectory}\Info\info.tsv";
+
+    private static readonly string _installPath = InstallPathHelper.GetEffectivePath();
+    private static readonly string _difficultyPath = Path.Combine(_installPath, "Info", "difficulty.tsv");
+    private static readonly string _infoPath = Path.Combine(_installPath, "Info", "info.tsv");
     private SongDatabase _songDatabase = SongDatabase.Load(_difficultyPath, _infoPath);
     private const int _saveIndexLatest = 0;
 
