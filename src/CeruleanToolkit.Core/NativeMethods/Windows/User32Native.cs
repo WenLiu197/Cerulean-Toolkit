@@ -7,6 +7,9 @@ namespace CeruleanToolkit.Core.NativeMethods.Windows;
 /// </summary>
 public static partial class User32Native
 {
+    // 获取最后一次 P/Invoke 的错误码
+    internal static int GetLastError() => Marshal.GetLastPInvokeError();
+
     // -------------------------------------------------
     // 光标相关 API
     // -------------------------------------------------
