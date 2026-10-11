@@ -1,11 +1,11 @@
 ﻿using CeruleanToolkit.Cli.Commands.Config;
 using CeruleanToolkit.Cli.Commands.Phigros;
+using CeruleanToolkit.Cli.Commands.System;
 using CeruleanToolkit.Core.Helpers;
 using CeruleanToolkit.Core.Interfaces;
 using CeruleanToolkit.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System.CommandLine;
 using System.Text;
 
@@ -28,6 +28,7 @@ try
     var root = new RootCommand("Cerulean Toolkit —— 一个多功能工具包");
     root.Subcommands.Add(ConfigCommand.Create(host.Services));
     root.Subcommands.Add(PhigrosCommand.Create(host.Services));
+    root.Subcommands.Add(SystemCommand.Create(host.Services));
 
     return await root.Parse(args).InvokeAsync();
 }
