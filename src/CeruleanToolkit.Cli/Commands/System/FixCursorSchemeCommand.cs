@@ -1,10 +1,6 @@
-﻿using CeruleanToolkit.Core.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
-using Spectre.Console;
-using System;
-using System.Collections.Generic;
+﻿#if WINDOWS
+using CeruleanToolkit.Core.Helpers;
 using System.CommandLine;
-using System.Text;
 
 namespace CeruleanToolkit.Cli.Commands.System;
 
@@ -22,11 +18,18 @@ internal class FixCursorSchemeCommand
 
         command.SetAction(async (parseResult, cancellationToken) =>
         {
-           
-
-            //return await phigrosService.BindWithSessionTokenAsync();
+            try
+            {
+                CursorFixingHelper.ApplyCurrentCursorScheme();
+                Console.WriteLine("光标方案已应用。");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"应用失败：{ex.Message}");
+            }
         });
 
         return command;
     }
 }
+#endif

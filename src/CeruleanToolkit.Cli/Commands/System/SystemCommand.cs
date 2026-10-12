@@ -18,7 +18,9 @@ internal class SystemCommand
         command.Aliases.Add("sys");
         command.Aliases.Add("os");
 
+#if WINDOWS
         command.Subcommands.Add(FixCursorSchemeCommand.Create(services));
+#endif
 
         return command;
     }

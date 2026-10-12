@@ -2,7 +2,7 @@
   "profiles": {
     "CeruleanToolkit.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "--help"
+      "commandLineArgs": "sys fix-cursor-scheme"
     },
     "WSL": {
       "commandName": "WSL2",
