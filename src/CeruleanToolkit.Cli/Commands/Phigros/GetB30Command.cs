@@ -1,23 +1,20 @@
-﻿using CeruleanToolkit.Core.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
+using CeruleanToolkit.Core.Attributes;
+using CeruleanToolkit.Core.Interfaces;
 using System.CommandLine;
 
 namespace CeruleanToolkit.Cli.Commands.Phigros;
 
-internal class GetB30Command
+[SubCommand(typeof(PhigrosCommand), Order = 3)]
+internal sealed class GetB30Command : Command
 {
-    public static Command Create(IServiceProvider services)
+    public GetB30Command(IPhigrosService phigrosService)
+        : base("get-b30", "获取 B30 成绩")
     {
-        var phigrosService = services.GetRequiredService<IPhigrosService>();
+        Aliases.Add("盖特比三零");
 
-        var command = new Command("get-b30", "获取 B30 成绩");
-        command.Aliases.Add("盖特比三零");
-
-        command.SetAction(async (parseResult, cancellationToken) =>
+        SetAction(async (parseResult, cancellationToken) =>
         {
             return await phigrosService.GetB30Async();
         });
-
-        return command;
     }
 }

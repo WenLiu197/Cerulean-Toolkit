@@ -1,12 +1,8 @@
-﻿using CeruleanToolkit.Core;
+using CeruleanToolkit.Core;
+using CeruleanToolkit.Core.Attributes;
 using CeruleanToolkit.Core.Interfaces;
-using CeruleanToolkit.Core.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.Text;
 
 namespace CeruleanToolkit.Cli.Commands.Config;
 
@@ -18,12 +14,12 @@ namespace CeruleanToolkit.Cli.Commands.Config;
 /// 别名: set
 /// </para>
 /// </remarks>
-internal static class SetConfigCommand
+[SubCommand(typeof(ConfigCommand), Order = 1)]
+internal sealed class SetConfigCommand : Command
 {
-    public static Command Create(IServiceProvider servicesProvider)
+    public SetConfigCommand(IConfigService configService)
+        : base("set-config", "更改程序配置")
     {
-        var configService = servicesProvider.GetRequiredService<IConfigService>();
-
         Argument<string> projectArgument = new("key")
         {
             Description = "配置项路径，如 phigros.isInternational"
@@ -34,21 +30,17 @@ internal static class SetConfigCommand
             Description = "配置项的新值"
         };
 
-        var command = new Command("set-config", "更改程序配置")
-        {
-            projectArgument,
-            valueArgument
-        };
+        Add(projectArgument);
+        Add(valueArgument);
 
-        command.SetAction(parseResult =>
+        SetAction(parseResult =>
         {
             string project = parseResult.GetValue(projectArgument) ?? string.Empty;
             string value = parseResult.GetValue(valueArgument) ?? string.Empty;
             return SetValue(configService, project, value);
         });
-        command.Aliases.Add("set");
 
-        return command;
+        Aliases.Add("set");
     }
 
     private static int SetValue(IConfigService configService, string project, string value)

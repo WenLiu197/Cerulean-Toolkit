@@ -1,6 +1,6 @@
 namespace CeruleanToolkit.Generator.Models;
 
-internal sealed record class ServiceDiagnostic(
+internal sealed record class GeneratorDiagnostic(
     string Id,
     LocationInfo? Location,
     string? Arg0 = null,

@@ -1,4 +1,5 @@
 using CeruleanToolkit.Generator.Diagnostics;
+using CeruleanToolkit.Generator.Helpers;
 using CeruleanToolkit.Generator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -90,32 +91,32 @@ public sealed class ServiceRegistrationGenerator : IIncrementalGenerator
         var location = LocationInfo.From(ctx.TargetNode.GetLocation());
         string classDisplayName = classSymbol.ToDisplayString();
         string interfaceDisplayName = targetTypeSymbol.ToDisplayString();
-        var diagnostics = ImmutableArray.CreateBuilder<ServiceDiagnostic>();
+        var diagnostics = ImmutableArray.CreateBuilder<GeneratorDiagnostic>();
 
         // 校验接口。不是接口就无法继续做实现/泛型检查，直接返回。
         if (targetTypeSymbol.TypeKind != TypeKind.Interface)
         {
-            diagnostics.Add(new ServiceDiagnostic("CTK001", location, interfaceDisplayName));
+            diagnostics.Add(new GeneratorDiagnostic("CTK001", location, interfaceDisplayName));
             return new ExtractionResult(null, diagnostics.ToImmutable());
         }
 
         // 命名约束：服务类必须以 Service 结尾
         if (!classSymbol.Name.EndsWith("Service", StringComparison.Ordinal))
         {
-            diagnostics.Add(new ServiceDiagnostic("CTK003", location, classDisplayName));
+            diagnostics.Add(new GeneratorDiagnostic("CTK003", location, classDisplayName));
         }
 
         // 可实例化约束：不能是抽象类、静态类或 file 局部类
         if (classSymbol.IsAbstract || classSymbol.IsStatic || classSymbol.IsFileLocal)
         {
-            diagnostics.Add(new ServiceDiagnostic("CTK004", location, classDisplayName));
+            diagnostics.Add(new GeneratorDiagnostic("CTK004", location, classDisplayName));
         }
 
         // 构造函数约束：依赖注入需要至少一个公共构造函数
         if (!classSymbol.InstanceConstructors.Any(c =>
                 c.DeclaredAccessibility == Accessibility.Public && !c.IsStatic))
         {
-            diagnostics.Add(new ServiceDiagnostic("CTK005", location, classDisplayName));
+            diagnostics.Add(new GeneratorDiagnostic("CTK005", location, classDisplayName));
         }
 
         var interfaceType = targetTypeSymbol as INamedTypeSymbol;
@@ -132,7 +133,7 @@ public sealed class ServiceRegistrationGenerator : IIncrementalGenerator
 
         if (implementedInterface is null)
         {
-            diagnostics.Add(new ServiceDiagnostic("CTK002", location, classDisplayName, interfaceDisplayName));
+            diagnostics.Add(new GeneratorDiagnostic("CTK002", location, classDisplayName, interfaceDisplayName));
             return new ExtractionResult(null, diagnostics.ToImmutable());
         }
 
@@ -144,12 +145,12 @@ public sealed class ServiceRegistrationGenerator : IIncrementalGenerator
         {
             if (!serviceIsGeneric)
             {
-                diagnostics.Add(new ServiceDiagnostic("CTK006", location, classDisplayName, interfaceDisplayName,
+                diagnostics.Add(new GeneratorDiagnostic("CTK006", location, classDisplayName, interfaceDisplayName,
                     "接口是开放泛型，但服务类不是泛型类；请使用 FooService<T> : IFoo<T> 的形式"));
             }
             else if (classSymbol.ContainingType?.IsGenericType == true)
             {
-                diagnostics.Add(new ServiceDiagnostic("CTK006", location, classDisplayName, interfaceDisplayName,
+                diagnostics.Add(new GeneratorDiagnostic("CTK006", location, classDisplayName, interfaceDisplayName,
                     "不支持嵌套在泛型类型中的服务类"));
             }
             else
@@ -157,7 +158,7 @@ public sealed class ServiceRegistrationGenerator : IIncrementalGenerator
                 int expectedArity = interfaceType!.Arity;
                 if (classSymbol.TypeParameters.Length != expectedArity)
                 {
-                    diagnostics.Add(new ServiceDiagnostic("CTK006", location, classDisplayName, interfaceDisplayName,
+                    diagnostics.Add(new GeneratorDiagnostic("CTK006", location, classDisplayName, interfaceDisplayName,
                         $"服务类有 {classSymbol.TypeParameters.Length} 个泛型参数，但接口需要 {expectedArity} 个"));
                 }
                 else
@@ -167,7 +168,7 @@ public sealed class ServiceRegistrationGenerator : IIncrementalGenerator
                         if (implementedInterface.TypeArguments[i] is not ITypeParameterSymbol typeParameter ||
                             !SymbolEqualityComparer.Default.Equals(typeParameter, classSymbol.TypeParameters[i]))
                         {
-                            diagnostics.Add(new ServiceDiagnostic("CTK006", location, classDisplayName,
+                            diagnostics.Add(new GeneratorDiagnostic("CTK006", location, classDisplayName,
                                 interfaceDisplayName,
                                 "服务类的泛型参数必须按相同顺序对应接口的泛型参数，例如 class FooService<T> : IFoo<T>"));
                             break;
@@ -178,12 +179,12 @@ public sealed class ServiceRegistrationGenerator : IIncrementalGenerator
         }
         else if (interfaceIsGeneric && serviceIsGeneric)
         {
-            diagnostics.Add(new ServiceDiagnostic("CTK006", location, classDisplayName, interfaceDisplayName,
+            diagnostics.Add(new GeneratorDiagnostic("CTK006", location, classDisplayName, interfaceDisplayName,
                 "接口是封闭泛型，但服务类是泛型类；请改用开放泛型接口（如 IFoo<>）"));
         }
         else if (!interfaceIsGeneric && serviceIsGeneric)
         {
-            diagnostics.Add(new ServiceDiagnostic("CTK006", location, classDisplayName, interfaceDisplayName,
+            diagnostics.Add(new GeneratorDiagnostic("CTK006", location, classDisplayName, interfaceDisplayName,
                 "服务类是泛型类，但接口不是泛型；泛型服务类只能注册到开放泛型接口"));
         }
 
@@ -197,7 +198,7 @@ public sealed class ServiceRegistrationGenerator : IIncrementalGenerator
         // 不依赖枚举的底层数值，按枚举成员名映射；这样即使以后调整枚举顺序也不会静默注册错。
         // 默认值与 ServiceAttribute 的属性初始值保持一致：
         // Lifetime = ServiceLifetime.Transient，Platform = SupportedPlatform.All。
-        string lifetimeMember = GetEnumMemberName(attribute, "Lifetime", "Transient");
+        string lifetimeMember = EnumMemberHelper.GetMemberName(attribute, "Lifetime", "Transient");
         string lifetimeMethod = lifetimeMember switch
         {
             "Singleton" => "AddSingleton",
@@ -206,7 +207,7 @@ public sealed class ServiceRegistrationGenerator : IIncrementalGenerator
             _ => "AddTransient"
         };
 
-        string platformMember = GetEnumMemberName(attribute, "Platform", "All");
+        string platformMember = EnumMemberHelper.GetMemberName(attribute, "Platform", "All");
         string? platformSymbol = platformMember switch
         {
             "Windows" => "WINDOWS",
@@ -243,47 +244,7 @@ public sealed class ServiceRegistrationGenerator : IIncrementalGenerator
             UseTypeOverload: useTypeOverload
         );
 
-        return new ExtractionResult(model, ImmutableArray<ServiceDiagnostic>.Empty);
-    }
-
-    /// <summary>
-    /// 从特性的命名参数中取出枚举成员名。
-    /// 如果调用方没有显式指定该参数，则返回 <paramref name="defaultMemberName"/>。
-    /// <para>
-    /// 这样生成器就不依赖枚举的底层数值，调整枚举成员顺序不会静默改变注册行为。
-    /// </para>
-    /// </summary>
-    private static string GetEnumMemberName(
-        AttributeData attribute,
-        string argumentName,
-        string defaultMemberName)
-    {
-        foreach (var namedArg in attribute.NamedArguments)
-        {
-            if (namedArg.Key != argumentName)
-                continue;
-
-            var typedValue = namedArg.Value;
-            if (typedValue.Value is null || typedValue.Type is not INamedTypeSymbol enumType)
-                return defaultMemberName;
-
-            int numericValue = System.Convert.ToInt32(typedValue.Value);
-            foreach (var member in enumType.GetMembers())
-            {
-                if (member is IFieldSymbol field &&
-                    field.HasConstantValue &&
-                    field.ConstantValue is not null &&
-                    System.Convert.ToInt32(field.ConstantValue) == numericValue)
-                {
-                    return field.Name;
-                }
-            }
-
-            // 未知/非法枚举值：回退到默认值，避免生成无法编译的代码。
-            return defaultMemberName;
-        }
-
-        return defaultMemberName;
+        return new ExtractionResult(model, ImmutableArray<GeneratorDiagnostic>.Empty);
     }
 
     private static string GenerateRegistrationCode(List<ServiceModel> models)

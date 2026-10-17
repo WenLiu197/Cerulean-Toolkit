@@ -4,5 +4,5 @@ namespace CeruleanToolkit.Generator.Models;
 
 internal sealed record class ExtractionResult(
     ServiceModel? Model,
-    ImmutableArray<ServiceDiagnostic> Diagnostics
+    ImmutableArray<GeneratorDiagnostic> Diagnostics
 );

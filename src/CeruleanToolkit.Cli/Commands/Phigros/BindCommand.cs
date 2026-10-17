@@ -1,21 +1,16 @@
-﻿using CeruleanToolkit.Core.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
+using CeruleanToolkit.Core.Attributes;
+using CeruleanToolkit.Core.Interfaces;
 using Spectre.Console;
 using System.CommandLine;
 
 namespace CeruleanToolkit.Cli.Commands.Phigros;
 
-internal class BindCommand
+[SubCommand(typeof(PhigrosCommand), Order = 0)]
+internal sealed class BindCommand : Command
 {
-    /// <summary>
-    /// 绑定账号命令，获取 sessionToken 并保存到程序配置中
-    /// </summary>
-    /// <param name="services">顾名思义</param>
-    /// <returns>配置完成的命令实例</returns>
-    public static Command Create(IServiceProvider services)
+    public BindCommand(IPhigrosService phigrosService)
+        : base("bind", "绑定账号命令，获取 sessionToken 并保存到程序配置中")
     {
-        var phigrosService = services.GetRequiredService<IPhigrosService>();
-
         Option<bool> sessionTokenOption = new("--session-token", ["-s"])
         {
             Description = "直接输入 sessionToken 绑定（默认行为，可不指定）",
@@ -28,13 +23,10 @@ internal class BindCommand
             Arity = ArgumentArity.Zero
         };
 
-        var command = new Command("bind", "绑定账号命令，获取 sessionToken 并保存到程序配置中")
-        {
-            sessionTokenOption,
-            taptapOption
-        };
+        Add(sessionTokenOption);
+        Add(taptapOption);
 
-        command.SetAction(async (parseResult, cancellationToken) =>
+        SetAction(async (parseResult, cancellationToken) =>
         {
             int specifiedCount = 0;
 
@@ -59,7 +51,5 @@ internal class BindCommand
 
             return await phigrosService.BindWithSessionTokenAsync();
         });
-
-        return command;
     }
 }

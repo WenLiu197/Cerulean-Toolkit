@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using CeruleanToolkit.Core.Attributes;
 using System.CommandLine;
 
 namespace CeruleanToolkit.Cli.Commands.System;
@@ -6,17 +6,13 @@ namespace CeruleanToolkit.Cli.Commands.System;
 /// <summary>
 /// System 命令
 /// </summary>
+[Command(Order = 2)]
 internal sealed class SystemCommand : Command
 {
-    public SystemCommand(IServiceProvider services) : base("system", "一些系统工具命令")
+    public SystemCommand()
+        : base("system", "一些系统工具命令")
     {
         Aliases.Add("sys");
         Aliases.Add("os");
-
-#if WINDOWS
-        var fixCursorSchemeCommand = services.GetRequiredService<FixCursorThemeCommand>();
-        Subcommands.Add(fixCursorSchemeCommand);
-#endif
     }
-
 }
