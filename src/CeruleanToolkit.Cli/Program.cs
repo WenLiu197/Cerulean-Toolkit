@@ -8,12 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.CommandLine;
 using System.Text;
-
 #if WINDOWS
 using CeruleanToolkit.Core.Interfaces.System;
 using CeruleanToolkit.Core.Services.SystemService;
 #endif
 
+// 服务注册
 var configService = new ConfigService();
 configService.Init();
 
@@ -26,9 +26,9 @@ builder.Services.AddTransient<ICursorFixService, CursorFixService>();
 #endif
 
 // 命令注册
-builder.Services.AddSingleton<SystemCommand>();
+builder.Services.AddTransient<SystemCommand>();
 #if WINDOWS
-builder.Services.AddSingleton<FixCursorSchemeCommand>();
+builder.Services.AddTransient<FixCursorSchemeCommand>();
 #endif
 
 using IHost host = builder.Build();
