@@ -24,6 +24,9 @@
     <None Update="Info\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+	  <ProjectReference Include="..\CeruleanToolkit.Generator\CeruleanToolkit.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 	
 </Project>

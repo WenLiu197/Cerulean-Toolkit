@@ -1,6 +1,7 @@
-﻿using CeruleanToolkit.Cli.Commands.Config;
+using CeruleanToolkit.Cli.Commands.Config;
 using CeruleanToolkit.Cli.Commands.Phigros;
 using CeruleanToolkit.Cli.Commands.System;
+using CeruleanToolkit.Core;
 using CeruleanToolkit.Core.Helpers;
 using CeruleanToolkit.Core.Interfaces;
 using CeruleanToolkit.Core.Services;
@@ -8,10 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.CommandLine;
 using System.Text;
-#if WINDOWS
-using CeruleanToolkit.Core.Interfaces.System;
-using CeruleanToolkit.Core.Services.SystemService;
-#endif
 
 // 服务注册
 var configService = new ConfigService();
@@ -20,15 +17,12 @@ configService.Init();
 var builder = Host.CreateApplicationBuilder();
 LoggingHelper.Configure(builder.Logging, configService);
 builder.Services.AddSingleton<IConfigService>(configService);
-builder.Services.AddTransient<IPhigrosService, PhigrosService>();
-#if WINDOWS
-builder.Services.AddTransient<ICursorFixService, CursorFixService>();
-#endif
+builder.Services.AddAllServices();
 
 // 命令注册
 builder.Services.AddTransient<SystemCommand>();
 #if WINDOWS
-builder.Services.AddTransient<FixCursorSchemeCommand>();
+builder.Services.AddTransient<FixCursorThemeCommand>();
 #endif
 
 using IHost host = builder.Build();

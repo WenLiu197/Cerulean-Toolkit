@@ -10,12 +10,12 @@ internal sealed class SystemCommand : Command
 {
     public SystemCommand(IServiceProvider services) : base("system", "一些系统工具命令")
     {
-        this.Aliases.Add("sys");
-        this.Aliases.Add("os");
+        Aliases.Add("sys");
+        Aliases.Add("os");
 
 #if WINDOWS
-        var fixCursorSchemeCommand = services.GetRequiredService<FixCursorSchemeCommand>();
-        this.Subcommands.Add(fixCursorSchemeCommand);
+        var fixCursorSchemeCommand = services.GetRequiredService<FixCursorThemeCommand>();
+        Subcommands.Add(fixCursorSchemeCommand);
 #endif
     }
 

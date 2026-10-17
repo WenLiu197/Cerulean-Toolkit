@@ -1,4 +1,4 @@
-﻿#if WINDOWS
+#if WINDOWS
 using System.Runtime.InteropServices;
 
 namespace CeruleanToolkit.Core.NativeMethods.Windows;
@@ -52,7 +52,7 @@ public static partial class User32Native
     /// <list type="bullet">成功时：返回图像句柄</list>
     /// <list type="bullet">失败时：返回 <see cref="IntPtr.Zero"/></list>
     /// </returns>
-    [LibraryImport("user32.dll", EntryPoint = "LoadImageW", StringMarshalling = StringMarshalling.Utf16)]
+    [LibraryImport("user32.dll", EntryPoint = "LoadImageW", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
     internal static partial IntPtr LoadImage(
         IntPtr hInst,
         string lpszName,
