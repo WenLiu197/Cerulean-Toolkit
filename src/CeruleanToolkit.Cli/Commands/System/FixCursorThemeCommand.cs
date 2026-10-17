@@ -1,4 +1,5 @@
-﻿#if WINDOWS
+#if WINDOWS
+using CeruleanToolkit.Core.Attributes;
 using CeruleanToolkit.Core.Helpers;
 using CeruleanToolkit.Core.Interfaces.System;
 using Spectre.Console;
@@ -9,14 +10,15 @@ namespace CeruleanToolkit.Cli.Commands.System;
 /// <summary>
 /// 修复 Windows 11 的光标方案 Bug，给巨硬擦屁股用的
 /// </summary>
-internal class FixCursorSchemeCommand : Command
+[SubCommand(typeof(SystemCommand), Order = 0, Platform = SupportedPlatform.Windows)]
+internal sealed class FixCursorThemeCommand : Command
 {
-    public FixCursorSchemeCommand(ICursorFixService cursorFixService)
+    public FixCursorThemeCommand(ICursorFixService cursorFixService)
         : base("fix-cursor-theme", "修复 Windows 11 的光标方案 Bug，如果你的光标变成了超大 Windows (默认)，不妨试试这个命令")
     {
-        this.Aliases.Add("fct");
+        Aliases.Add("fct");
 
-        this.SetAction(_ =>
+        SetAction(_ =>
         {
             try
             {

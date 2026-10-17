@@ -1,4 +1,5 @@
-﻿#if WINDOWS
+#if WINDOWS
+using CeruleanToolkit.Core.Attributes;
 using CeruleanToolkit.Core.Helpers;
 using CeruleanToolkit.Core.Interfaces.System;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ using System.Text;
 
 namespace CeruleanToolkit.Core.Services.SystemService;
 
+[Service(typeof(ICursorFixService), Lifetime = ServiceLifetime.Transient, Platform = SupportedPlatform.Windows)]
 public sealed class CursorFixService : ICursorFixService
 {
     /// <summary>
@@ -41,6 +43,9 @@ public sealed class CursorFixService : ICursorFixService
 
     /// <summary>
     ///  名称 -> OCR_* ID 的映射
+    ///  <para>
+    ///  NWPen / Person / Pin 在注册表里有对应值，但 Windows 没有公开对应的 OCR_* 槽位，服了
+    ///  </para>
     /// </summary>
     private static readonly Dictionary<string, uint> RoleToCursorId = new()
     {

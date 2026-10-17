@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -24,6 +24,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CeruleanToolkit.Core\CeruleanToolkit.Core.csproj" />
+    <ProjectReference Include="..\CeruleanToolkit.Generator\CeruleanToolkit.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

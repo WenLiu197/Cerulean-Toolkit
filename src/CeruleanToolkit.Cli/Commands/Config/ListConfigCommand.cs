@@ -1,11 +1,8 @@
-﻿using CeruleanToolkit.Core.Helpers.Pringting;
+using CeruleanToolkit.Core.Attributes;
+using CeruleanToolkit.Core.Helpers.Pringting;
 using CeruleanToolkit.Core.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.Text;
 
 namespace CeruleanToolkit.Cli.Commands.Config;
 
@@ -21,12 +18,12 @@ namespace CeruleanToolkit.Cli.Commands.Config;
 /// </para>
 /// </para>
 /// </remarks>
-internal class ListConfigCommand
+[SubCommand(typeof(ConfigCommand), Order = 0)]
+internal sealed class ListConfigCommand : Command
 {
-    public static Command Create(IServiceProvider serviceProvider)
+    public ListConfigCommand(IConfigService configService)
+        : base("list-config", "列出当前配置")
     {
-        var configService = serviceProvider.GetRequiredService<IConfigService>();
-
         Option<bool> allOption = new("--all", ["-a"])
         {
             Description = "输出完整配置（默认，可不指定）"
@@ -37,15 +34,13 @@ internal class ListConfigCommand
             Description = "按配置组输出，可选值：general、phigros"
         };
 
-        var command = new Command("list-config", "列出当前配置")
-        {
-            allOption,
-            groupOption
-        };
-        command.Aliases.Add("list");
-        command.Aliases.Add("ls");
+        Add(allOption);
+        Add(groupOption);
 
-        command.SetAction((parseResult) =>
+        Aliases.Add("list");
+        Aliases.Add("ls");
+
+        SetAction(parseResult =>
         {
             // 统计用户使用了几个选项
             int specifiedCount = 0;
@@ -73,7 +68,5 @@ internal class ListConfigCommand
                 return ConfigPrintingHelper.PrintConfigWithGroup(configService.GetConfig(), group);
             }
         });
-
-        return command;
     }
 }

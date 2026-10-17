@@ -1,14 +1,11 @@
-﻿using CeruleanToolkit.Core;
+using CeruleanToolkit.Core;
+using CeruleanToolkit.Core.Attributes;
 using CeruleanToolkit.Core.Interfaces;
-using CeruleanToolkit.Core.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.Text;
 
 namespace CeruleanToolkit.Cli.Commands.Config;
+
 // 三个选项大抵是够了
 /// <summary>
 /// 表示将配置恢复为默认值的命令, 重置配置命令
@@ -23,17 +20,12 @@ namespace CeruleanToolkit.Cli.Commands.Config;
 /// <item><description><c>--item</c>（<c>-i</c>）：重置指定配置项（如 <c>phigros.sessionToken</c>）。</description></item>
 /// </list>
 /// </remarks>
-internal static class ResetConfigCommand
+[SubCommand(typeof(ConfigCommand), Order = 2)]
+internal sealed class ResetConfigCommand : Command
 {
-    /// <summary>
-    /// 创建 <c>reset-config</c> 命令实例。
-    /// </summary>
-    /// <param name="services">用于解析命令依赖的服务提供程序。</param>
-    /// <returns>配置完成的命令实例。</returns>
-    public static Command Create(IServiceProvider services)
+    public ResetConfigCommand(IConfigService configService)
+        : base("reset-config", "恢复默认配置")
     {
-        var configService = services.GetRequiredService<IConfigService>();
-
         Option<bool> allOption = new("--all", ["-a"])
         {
             Description = "重置全部配置（默认行为，可不指定）",
@@ -49,17 +41,13 @@ internal static class ResetConfigCommand
             Description = "重置指定配置项，如 phigros.sessionToken"
         };
 
-        var command = new Command("reset-config", "恢复默认配置")
-        {
-            allOption,
-            groupOption,
-            itemOption,
-        };
-        //command.Options.Add(allOption);
-        //command.Options.Add(groupOption);
-        //command.Options.Add(groupOption);
-        command.Aliases.Add("reset");
-        command.SetAction(parseResult =>
+        Add(allOption);
+        Add(groupOption);
+        Add(itemOption);
+
+        Aliases.Add("reset");
+
+        SetAction(parseResult =>
         {
             // 统计用户使用了几个选项
             int specifiedCount = 0;
@@ -90,34 +78,7 @@ internal static class ResetConfigCommand
 
             // 默认是全部输出
             return ResetAll(configService);
-
-            // 重构前的代码，留着，做第可读性、难维护的反面教材
-            //bool allSpecified = parseResult.GetValue(allOption);
-            //bool groupSpecified = !string.IsNullOrEmpty(group);
-            //bool itemSpecified = !string.IsNullOrEmpty(item);
-
-            //if ((allSpecified && (groupSpecified || itemSpecified))
-            //    || (groupSpecified && itemSpecified))
-            //{
-            //    AnsiConsole.MarkupLine("[red]--all、--group、--item 只能指定其一[/]");
-            //    return 1;
-            //}
-
-            //if (groupSpecified)
-            //{
-            //    return ResetGroup(configService, group!);
-            //}
-
-            //if (itemSpecified)
-            //{
-            //    return ResetItem(configService, item!);
-            //}
-
-            //ResetAll(configService);
-            //return 0;
         });
-
-        return command;
     }
 
     /// <summary>

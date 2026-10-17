@@ -1,7 +1,7 @@
-﻿using CeruleanToolkit.Core.Helpers.Pringting;
+using CeruleanToolkit.Core.Attributes;
+using CeruleanToolkit.Core.Helpers.Pringting;
 using CeruleanToolkit.Core.Interfaces;
 using PhiLibrary197.CloudSave;
-using PhiLibrary197.CloudSave.HttpModels;
 using PhiLibrary197.CloudSave.Login;
 using Spectre.Console;
 using System.Net;
@@ -18,6 +18,7 @@ namespace CeruleanToolkit.Core.Services;
 /// </para>
 /// </para>
 /// </summary>
+[Service(typeof(IPhigrosService), Lifetime = ServiceLifetime.Transient)]
 public sealed class PhigrosService : IPhigrosService
 {
     private readonly IConfigService _configService;
