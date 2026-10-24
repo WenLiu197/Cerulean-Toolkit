@@ -1,4 +1,4 @@
-﻿using CeruleanToolkit.Core.Services;
+using CeruleanToolkit.Core.Services;
 using PhiLibrary197.CloudSave;
 using Spectre.Console;
 using System;
@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CeruleanToolkit.Core.Helpers.Pringting;
 
-public class PhigrosPrintingHelper
+public static class PhigrosPrintingHelper
 {
     public static int ShowUserInfo((string NickName, string Rks, string Intro, string Data, string Challenge, bool ShowIntro) info)
     {
