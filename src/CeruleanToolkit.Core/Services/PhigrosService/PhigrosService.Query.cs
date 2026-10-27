@@ -1,5 +1,6 @@
 using CeruleanToolkit.Core.Helpers.Pringting;
 using PhiLibrary197.CloudSave;
+using PhiLibrary197.Scores;
 
 namespace CeruleanToolkit.Core.Services;
 
@@ -89,6 +90,12 @@ public sealed partial class PhigrosService
             case ScoreStatus.False:
                 parsedStatus = "[bold]F[/]";
                 break;
+            case ScoreStatus.Bugged:
+                parsedStatus = "[red]BUG[/]";
+                break;
+            case ScoreStatus.NotFc:
+                parsedStatus = "[dim]-[/]";
+                break;
             default:
                 parsedStatus = "?";
                 break;
@@ -134,7 +141,7 @@ public sealed partial class PhigrosService
     public async Task<(string NickName, string Rks, string Intro, string Data, string Challenge, bool ShowIntro)> GetUserInfoAsync(bool showIntro = true)
     {
         var config = _configService.GetConfig();
-        var save = GetSave(config);
+        using var save = GetSave(config);
         var info = await save.GetPlayerInfoAsync();
         var context = await save.GetSaveContextAsync(_saveIndexLatest);
         var record = context.ReadGameRecord();
@@ -156,11 +163,13 @@ public sealed partial class PhigrosService
         PhigrosPrintingHelper.ShowUserInfo(await GetUserInfoAsync());
         var constantMap = _songDatabase.ToConstantMap();
         var nameMap = _songDatabase.ToNameMap();
-        var save = GetSave(_configService.GetConfig());
+        using var save = GetSave(_configService.GetConfig());
         SaveContext ctx = await save.GetSaveContextAsync(_saveIndexLatest);
         GameRecord record = ctx.ReadGameRecord();
-        Summary summary = ctx.ReadSummary();
-        var (phis, otherScores, _) = record.GetSortedListForRks(constantMap, nameMap);
+        var (phis, sorted, _) = record.GetSortedListForRks(constantMap, nameMap);
+
+        // 新 API 的 OtherScores 包含 Phi，B30 展示时去掉已在 Phi 3 中显示的部分
+        var otherScores = sorted.Where(score => !phis.Contains(score)).ToList();
         PhigrosPrintingHelper.ShowB30((phis, otherScores), this);
         return 0;
     }

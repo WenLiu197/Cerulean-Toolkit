@@ -1,6 +1,6 @@
 using CeruleanToolkit.Core.Attributes;
 using CeruleanToolkit.Core.Interfaces;
-using PhiLibrary197.CloudSave;
+using PhiLibrary197.Songs;
 
 namespace CeruleanToolkit.Core.Services;
 
@@ -17,9 +17,7 @@ namespace CeruleanToolkit.Core.Services;
 public sealed partial class PhigrosService : IPhigrosService
 {
     private readonly IConfigService _configService;
-    private static readonly string _difficultyPath = $@"{Environment.CurrentDirectory}\Info\difficulty.tsv";
-    private static readonly string _infoPath = $@"{Environment.CurrentDirectory}\Info\info.tsv";
-    private SongDatabase _songDatabase = SongDatabase.Load(_difficultyPath, _infoPath);
+    private readonly SongDatabase _songDatabase = SongDatabase.LoadFromBuiltIn();
     private const int _saveIndexLatest = 0;
 
     /// <summary>

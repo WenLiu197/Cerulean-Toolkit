@@ -1,9 +1,7 @@
 using CeruleanToolkit.Core.Helpers.Pringting;
-using CeruleanToolkit.Core.Interfaces;
+using PhiLibrary197.Authentication;
 using PhiLibrary197.CloudSave;
-using PhiLibrary197.CloudSave.Login;
 using Spectre.Console;
-using System.Net;
 
 namespace CeruleanToolkit.Core.Services;
 
@@ -29,24 +27,15 @@ public sealed partial class PhigrosService
                     return ValidationResult.Success();
                 }));
 
-            // 理论上不会触发，只做防御性编程
-            if (string.IsNullOrWhiteSpace(sessionToken))
-            {
-                AnsiConsole.MarkupLine("[red]输入无效，操作已取消[/]");
-                return 1;
-            }
-
             AnsiConsole.MarkupLine("[blue]正在验证 sessionToken 有效性...[/]");
 
             try
             {
-                {
-                    Save testSave = new(sessionToken.Trim(), config.Phigros.IsInternational);
+                using Save testSave = new(sessionToken.Trim(), config.Phigros.IsInternational);
 
-                    // 发起 HTTP 请求
-                    // 如果 token 无效，抛出 HttpRequestException
-                    await testSave.GetSaveContextAsync(_saveIndexLatest);
-                }
+                // 发起 HTTP 请求
+                // 如果 token 无效，抛出 HttpRequestException
+                await testSave.GetSaveContextAsync(_saveIndexLatest);
 
                 // 验证通过后保存到配置
                 config.Phigros.SessionToken = sessionToken;
@@ -88,68 +77,45 @@ public sealed partial class PhigrosService
 
         if (string.IsNullOrEmpty(config.Phigros.SessionToken))
         {
-            // 生成回调登录数据
-            CallbackLoginData login = TapTapHelper.GenerateCallbackLoginUrl(
-                "http://localhost:8080/callback");
+            // Save 的 isInternational 与登录 API 的 useChinaEndpoint 方向相反
+            bool useChinaEndpoint = !config.Phigros.IsInternational;
 
-            // 引导用户访问，在浏览器里完成授权
-            Console.MarkupLine($"请访问以登录: {login.BeginUrl}\n");
-            AnsiConsole.MarkupLine($"[yellow]当提示 “正在打开 Phigros” 时即可返回~[/]");
+            using TapTapCallbackServer server = TapTapHelper.StartCallbackLogin(
+                port: 0,
+                useChinaEndpoint: useChinaEndpoint);
 
-            // 第一次写这种监听器………………希望不会出什么差错
-            using var listener = new HttpListener();
-            listener.Prefixes.Add("http://localhost:8080/");
-            listener.Start();
+            AnsiConsole.MarkupLine($"请访问以登录: [blue]{server.BeginUrl}[/]");
+            AnsiConsole.MarkupLine("[yellow]当提示 “正在打开 Phigros” 时即可返回~[/]");
 
             try
             {
-                // 等待 TapTap 的回调
-                HttpListenerContext context = await listener.GetContextAsync();
-                HttpListenerRequest request = context.Request;
-
-                // 检查是否是 /callback 路径（以防万一……还是写上吧……防御性编程这一块）
-                if (request.Url?.AbsolutePath != "/callback")
-                {
-                    Console.Error.WriteLine($"接收到意外的路径：{request.Url?.AbsolutePath}");
-                    return 1;
-                }
-
-                // 从查询字符串中提取 code
-                string? code = request.QueryString["code"];
-
-                if (string.IsNullOrEmpty(code))
-                {
-                    Console.Error.WriteLine("回调中缺少 code 参数");
-                    return 1;
-                }
-
-                // 使用 code 交换 Token
-                TapTapTokenData token = await TapTapHelper.HandleCallbackLogin(login, code);
-                TapTapProfileData profile = await TapTapHelper.GetProfile(token.Data);
+                TapTapTokenData token = await server.WaitForTokenAsync();
+                TapTapProfileData profile = await TapTapHelper.GetProfile(
+                    token.Data,
+                    useChinaEndpoint: useChinaEndpoint);
 
                 // 用 TapTap 数据登录 LeanCloud 并保存 sessionToken
                 string sessionToken = await LCHelper.LoginAndGetToken(
-                    new LCCombinedAuthData(profile.Data, token.Data));
+                    new LCCombinedAuthData(profile.Data, token.Data),
+                    useChinaEndpoint: useChinaEndpoint);
+
                 config.Phigros.SessionToken = sessionToken;
                 _configService.Save();
 
                 AnsiConsole.MarkupLine("\n[green]登录成功![/]\n");
                 AnsiConsole.MarkupLine("[yellow]请检查您的个人信息:[/]\n");
                 PhigrosPrintingHelper.ShowUserInfo(await GetUserInfoAsync());
+                return 0;
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"发生错误：{ex.Message}");
+                return 1;
             }
-            finally
-            {
-                listener.Stop();   // 停止监听，释放资源
-            }
-            return 0;
         }
         else
         {
-            AnsiConsole.MarkupLine("[red]您以绑定以下账号，请使用 'phigros unbind' 解绑后再试\n[/]");
+            AnsiConsole.MarkupLine("[red]您已经绑定以下账号，请使用 'phigros unbind' 解绑后再试\n[/]");
             PhigrosPrintingHelper.ShowUserInfo(await GetUserInfoAsync());
             return 1;
         }

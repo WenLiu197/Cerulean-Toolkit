@@ -9,6 +9,14 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <AssemblyName>ctk</AssemblyName>
+
+    <!--
+      System.CommandLine 的 version 选项读取 AssemblyInformationalVersion。
+      SDK 默认会把 SourceRevisionId 追加成 1.0.0+<sha>，这里关闭该行为，
+      让 version 输出干净的语义化版本号。
+    -->
+    <Version>1.0.0</Version>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
