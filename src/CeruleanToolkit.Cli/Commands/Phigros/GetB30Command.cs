@@ -12,9 +12,6 @@ internal sealed class GetB30Command : Command
     {
         Aliases.Add("盖特比三零");
 
-        SetAction(async (parseResult, cancellationToken) =>
-        {
-            return await phigrosService.GetB30Async();
-        });
+        SetAction((_, _) => phigrosService.GetB30Async());
     }
 }
